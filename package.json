@@ -1,0 +1,17 @@
+{
+  "name": "webgl-learning",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": {
+    "url": "git@github.com:AngusFu/webgl-learning.git",
+    "type": "git"
+  },
+  "scripts": {
+    "start": "browser-sync start --directory --server --files \"**/**\" --open \"external\" --reload-debounce --no-notify"
+  },
+  "author": "wemlion <angusfu1126@qq.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "browser-sync": "^2.18.12"
+  }
+}

@@ -1,0 +1,105 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Click and Draw</title>
+</head>
+<body>
+  <canvas id="webgl" width="400" height="400"></canvas>
+  <script src="../scripts/webgl-utils.js"></script>
+  <script src="../scripts/webgl-debug.js"></script>
+  <script src="../scripts/cuon-utils.js"></script>
+  <script>
+    var V_SHADER_SOURCE = `
+      attribute vec4 a_Position;
+      attribute float a_PointSize;
+			void main() {
+				gl_Position = a_Position;
+				gl_PointSize = a_PointSize;
+			}
+		`;
+    var F_SHADER_SOURCE = `
+      // precision qualifier
+      precision mediump float;
+      uniform vec4 u_FragColor;
+			void main() {
+				gl_FragColor = u_FragColor;
+			}
+		`;
+  	var canvas = document.getElementById('webgl');
+    var gl = getWebGLContext(canvas);
+    if (!gl) {
+      alert('WebGL is not supported!')
+    } else {
+      if (!initShaders(gl, V_SHADER_SOURCE, F_SHADER_SOURCE)) {
+        alert('着色器初始化失败！');
+      }
+
+      var gl_points = [];
+      draw(gl_points, gl);
+      canvas.addEventListener('click', function (e) {
+        var point = screenToGL({
+          x: e.clientX,
+          y: e.clientY
+        }, canvas);
+        point.color = new Float32Array(
+          point.x * point.y > 0 ? [0.2, 0.3, 0.4, 1] : [0.4, 0.3, 0.2, 1]
+        );
+        gl_points.push(point);
+        draw(gl_points, gl);
+      }, false);
+
+      function screenToGL(cord, canvas) {
+        var rect = canvas.getBoundingClientRect();
+        var relativeCord = {
+          x: cord.x - rect.left,
+          y: cord.y - rect.top
+        };
+
+        var relativeOriginCord = {
+          x: rect.width / 2,
+          y: rect.height / 2
+        };
+
+        return  {
+          x: (relativeCord.x - relativeOriginCord.x) / (+rect.width / 2),
+          y: (relativeCord.y - relativeOriginCord.y) / (-rect.height / 2)
+        };
+      }
+
+      function draw(points, gl) {
+        // clear canvas
+        gl.clearColor(0, 0, 0, 1);
+        gl.clear(gl.COLOR_BUFFER_BIT);
+
+        // draw points
+        points.forEach(function(point) {
+          drawPoint(point, gl);
+        });
+      }
+
+      function drawPoint(point, gl) {
+        var a_Position = gl.getAttribLocation(gl.program, 'a_Position');
+        if (a_Position < 0) {
+          throw '获取 a_Position 储存位置失败';
+        }
+        gl.vertexAttrib4f(a_Position, point.x, point.y, 0.0, 1.0);
+
+        var a_PointSize = gl.getAttribLocation(gl.program, 'a_PointSize');
+        if (a_PointSize < 0) {
+          throw '获取 a_PointSize 储存位置失败';
+        }
+        gl.vertexAttrib1f(a_PointSize, 10);
+
+        var u_FragColor = gl.getUniformLocation(gl.program, 'u_FragColor');
+        if (!u_FragColor) {
+          throw '获取 u_FragColor 存储位置失败';
+        }
+        gl.uniform4fv(u_FragColor, point.color);
+        gl.drawArrays(gl.POINTS, 0, 1);
+      }
+    }
+  </script>
+</body>
+</html>
