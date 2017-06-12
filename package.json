@@ -7,11 +7,13 @@
     "type": "git"
   },
   "scripts": {
-    "start": "browser-sync start --directory --server --files \"**/**\" --open \"external\" --reload-debounce --no-notify"
+    "start": "browser-sync start --directory --server --files \"**/**\" --open \"external\" --reload-debounce --no-notify",
+    "push": "node index.js && git add -A && git commit -m 'commit' && git push"
   },
   "author": "wemlion <angusfu1126@qq.com>",
   "license": "MIT",
   "devDependencies": {
-    "browser-sync": "^2.18.12"
+    "browser-sync": "^2.18.12",
+    "glob": "^7.1.2"
   }
 }
